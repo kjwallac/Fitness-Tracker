@@ -46,4 +46,21 @@ router.post("/api/workouts", async (req, res) => {
     return workout;
   }, res);
 });
+
+router.get("/api/workouts/range", async (req, res) => {
+  await executeDbOp(async () => {
+    const workouts = await db.Workout.aggregate([
+      {
+        $addFields: {
+          totalDuration: {
+            $sum: "$exercises.duration",
+          },
+        },
+      },
+    ])
+      .sort({ _id: -1 })
+      .limit(7);
+    return workouts;
+  }, res);
+});
 module.exports = router;
